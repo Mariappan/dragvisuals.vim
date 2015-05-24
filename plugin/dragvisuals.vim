@@ -379,6 +379,8 @@ vmap <silent><expr> <Plug>(dragvisuals-right) DVB_Drag('right')
 vmap <silent><expr> <Plug>(dragvisuals-down)  DVB_Drag('down')
 vmap <silent><expr> <Plug>(dragvisuals-up)    DVB_Drag('up')
 
+vmap <silent><expr> <Plug>(dragvisuals-duplicate)    DVB_Duplicate()
+
 vmap <Plug>(dragvisuals-toggle) :<C-U>call dragvisuals#toggle()<CR>
 
 " Restore previous external compatibility options

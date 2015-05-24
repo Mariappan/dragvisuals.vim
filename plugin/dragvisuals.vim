@@ -69,7 +69,14 @@ function! DVB_Drag (dir)
     " (to ensure we have access to block position data)...
     elseif mode() ==# 'V'
         " Join All undos to make it one undo
-        undojoin
+        try
+            silent undojoin
+        catch /E790/
+        " after move and exit at the same position(actully at cosmetic level no
+        " change you made), and 'u'(undo), then restart move.
+        " This read to situation 'undojoin is not allowed after undo' error.
+        " But this cannot detect, so simply suppress this error.
+        endtry
         " Set up a temporary convenience...
         exec "nnoremap <silent><expr><buffer>  M  \<SID>Drag_Lines('".a:dir."')"
 
@@ -80,7 +87,10 @@ function! DVB_Drag (dir)
     " (to ensure we have access to block position data)...
     else
         " Join All undos to make it one undo
-        undojoin
+        try
+            silent undojoin
+        catch
+        endtry
         " Set up a temporary convenience...
         exec "nnoremap <silent><expr><buffer>  M  \<SID>Drag_Block('".a:dir."')"
 
@@ -343,6 +353,33 @@ function! s:Drag_Block (dir)
     endif
 endfunction
 
+let b:dragenabled = 0
+function! dragvisuals#toggle()
+    if b:dragenabled == 0
+        let b:dragenabled = 1
+        vmap  <silent><buffer><LEFT>  <Plug>(dragvisuals-left)
+        vmap  <silent><buffer><RIGHT> <Plug>(dragvisuals-right)
+        vmap  <silent><buffer><DOWN>  <Plug>(dragvisuals-down)
+        vmap  <silent><buffer><UP>    <Plug>(dragvisuals-up)
+        echo "Dragmode enabled"
+        execute "normal i \<esc>xgv"
+    else
+        let b:dragenabled = 0
+        vunmap  <silent><buffer><LEFT>
+        vunmap  <silent><buffer><RIGHT>
+        vunmap  <silent><buffer><DOWN>
+        vunmap  <silent><buffer><UP>
+        echo "Dragmode disabled"
+    endif
+    return
+endfunction
+
+vmap <silent><expr> <Plug>(dragvisuals-left)  DVB_Drag('left')
+vmap <silent><expr> <Plug>(dragvisuals-right) DVB_Drag('right')
+vmap <silent><expr> <Plug>(dragvisuals-down)  DVB_Drag('down')
+vmap <silent><expr> <Plug>(dragvisuals-up)    DVB_Drag('up')
+
+vmap <Plug>(dragvisuals-toggle) :<C-U>call dragvisuals#toggle()<CR>
 
 " Restore previous external compatibility options
 let &cpo = s:save_cpo

@@ -68,6 +68,8 @@ function! DVB_Drag (dir)
     " Do Visual Line drag indirectly via temporary nmap
     " (to ensure we have access to block position data)...
     elseif mode() ==# 'V'
+        " Join All undos to make it one undo
+        undojoin
         " Set up a temporary convenience...
         exec "nnoremap <silent><expr><buffer>  M  \<SID>Drag_Lines('".a:dir."')"
 
@@ -77,6 +79,8 @@ function! DVB_Drag (dir)
     " Otherwise do Visual Block drag indirectly via temporary nmap
     " (to ensure we have access to block position data)...
     else
+        " Join All undos to make it one undo
+        undojoin
         " Set up a temporary convenience...
         exec "nnoremap <silent><expr><buffer>  M  \<SID>Drag_Block('".a:dir."')"
 
@@ -198,7 +202,7 @@ function! s:Drag_Lines (dir)
             return   "O\<ESC>gv"
 
         " Otherwise, just cut-move-paste-reselect...
-        else 
+        else
             return   s:NO_REPORT
                  \ . 'gvxp'
                  \ . s:PREV_REPORT
